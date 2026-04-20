@@ -1,0 +1,9 @@
+{
+    "name": "tintahub-backend",
+    "version": "1.0.0",
+    "description": "Backend de TintaHub - Plataforma Web de Difusion Literaria",
+    "dependencies": {
+        "express": "^4.18.0",
+        "pg": "^8.11.0"
+    }
+}
