@@ -1,0 +1,19 @@
+# Contraseñas — NUNCA subir a GitHub
+.env
+
+# Logs
+*.log
+
+# Dependencias Node.js
+node_modules/
+
+# Archivos del sistema Windows
+Thumbs.db
+desktop.ini
+
+# Archivos del sistema Mac
+.DS_Store
+
+# Archivos temporales
+*.tmp
+*.temp

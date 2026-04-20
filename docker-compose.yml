@@ -1,0 +1,54 @@
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: tintahub_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: tintahub_user
+      POSTGRES_PASSWORD: T1nt@h#b_,U,_1924!
+      POSTGRES_DB: tintahub_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./base_datos/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - tintahub_network
+
+  backend:
+    build: ./backend
+    container_name: tintahub_backend
+    restart: always
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: tintahub_user
+      DB_PASSWORD: tintahub_pass
+      DB_NAME: tintahub_db
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+    networks:
+      - tintahub_network
+
+  nginx:
+    image: nginx:latest
+    container_name: tintahub_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+    networks:
+      - tintahub_network
+
+volumes:
+  postgres_data:
+
+networks:
+  tintahub_network:
+    driver: bridge
