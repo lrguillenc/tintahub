@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TintaHub - Plataforma Web de Difusión Literaria</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Special Elite', cursive;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .titulo {
+            color: #f5f0e8;
+            font-size: 3.5rem;
+            font-weight: bold;
+            letter-spacing: 8px;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: aparecer 1.5s ease-in-out;
+        }
+
+        .logo {
+            width: 300px;
+            height: auto;
+            margin: 0 auto 40px auto;
+            display: block;
+            animation: aparecer 1.5s ease-in-out;
+            filter: drop-shadow(0 0 20px rgba(245, 240, 232, 0.2));
+        }
+
+        .subtitulo {
+            color: #a89880;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            line-height: 2;
+            animation: aparecer 2s ease-in-out;
+        }
+
+        .subtitulo .linea1 {
+            display: block;
+            font-size: 1.4rem;
+            color: #c8b99a;
+            margin-bottom: 15px;
+        }
+
+        .subtitulo .linea2 {
+            display: block;
+            font-size: 1rem;
+            color: #6b5f52;
+            font-style: italic;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1.2em;
+            background-color: #a89880;
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: parpadeo 1s infinite;
+        }
+
+        @keyframes parpadeo {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .separador {
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #a89880, transparent);
+            margin: 30px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="titulo" id="titulo"></h1>
+        <img class="logo" src="logo.jpg" alt="TintaHub Logo">
+        <div class="separador"></div>
+        <div class="subtitulo">
+            <span class="linea1" id="linea1"></span>
+            <span class="linea2" id="linea2"></span>
+        </div>
+    </div>
+
+    <script>
+        function escribirTexto(elementId, texto, velocidad, callback) {
+            const elemento = document.getElementById(elementId);
+            let i = 0;
+            const cursor = document.createElement('span');
+            cursor.className = 'cursor';
+            elemento.appendChild(cursor);
+
+            const intervalo = setInterval(() => {
+                if (i < texto.length) {
+                    elemento.insertBefore(
+                        document.createTextNode(texto[i]), cursor
+                    );
+                    i++;
+                } else {
+                    clearInterval(intervalo);
+                    cursor.remove();
+                    if (callback) callback();
+                }
+            }, velocidad);
+        }
+
+        window.onload = function() {
+            escribirTexto('titulo', 'TintaHub', 150, function() {
+                setTimeout(function() {
+                    escribirTexto('linea1', 
+                        'Plataforma Web de Difusión Literaria', 
+                        80, function() {
+                        setTimeout(function() {
+                            escribirTexto('linea2', 
+                                'En desarrollo · Disculpen las molestias', 
+                                60, null);
+                        }, 300);
+                    });
+                }, 500);
+            });
+        };
+    </script>
+</body>
+</html>
