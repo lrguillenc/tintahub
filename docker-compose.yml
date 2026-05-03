@@ -5,9 +5,9 @@ services:
     container_name: tintahub_postgres
     restart: always
     environment:
-      POSTGRES_USER: tintahub_user
-      POSTGRES_PASSWORD: T1nt@h#b_,U,_1924!
-      POSTGRES_DB: tintahub_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./base_datos/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -23,9 +23,10 @@ services:
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_USER: tintahub_user
-      DB_PASSWORD: tintahub_pass
-      DB_NAME: tintahub_db
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+
     depends_on:
       - postgres
     ports:
