@@ -14,30 +14,12 @@ DROP TABLE IF EXISTS mensaje CASCADE;
 DROP TABLE IF EXISTS obra CASCADE;
 DROP TABLE IF EXISTS usuario CASCADE;
 
--- =============================================
--- MEDIDA — Roles y permisos de base de datos
--- =============================================
+-- Eliminar vistas si existen
+DROP VIEW IF EXISTS vista_usuario_publico;
 
--- Eliminar roles si existen para evitar errores
-DROP ROLE IF EXISTS tintahub_app;
-DROP ROLE IF EXISTS tintahub_readonly;
-
--- Rol para la aplicación — solo lo necesario
-CREATE ROLE tintahub_app WITH LOGIN
-    PASSWORD 'T1nt@h#b_rOlE!'
-    NOSUPERUSER
-    NOCREATEDB
-    NOCREATEROLE
-    NOINHERIT
-    CONNECTION LIMIT 20;
-
--- Rol de solo lectura — para consultas de reporting
-CREATE ROLE tintahub_readonly WITH LOGIN
-    PASSWORD 'R3adOnly_T1nt@Hub!7AGO'
-    NOSUPERUSER
-    NOCREATEDB
-    NOCREATEROLE
-    CONNECTION LIMIT 5;
+-- Eliminar funciones si existen
+DROP FUNCTION IF EXISTS registrar_acceso(INTEGER);
+DROP FUNCTION IF EXISTS incrementar_intentos(VARCHAR);
 
 -- =============================================
 -- TABLAS
@@ -54,10 +36,10 @@ CREATE TABLE usuario (
     rol            VARCHAR(10)   NOT NULL
                    CHECK (rol IN ('escritor','lector')),
     fecha_registro TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    activo         BOOLEAN       NOT NULL DEFAULT TRUE,
     bio            VARCHAR(500),
+    ultimo_acceso  TIMESTAMP,
     intentos_login INTEGER       NOT NULL DEFAULT 0,
-    ultimo_acceso  TIMESTAMP
+    activo         BOOLEAN       NOT NULL DEFAULT TRUE
 );
 
 -- Tabla obra
@@ -127,41 +109,32 @@ CREATE TABLE seguimiento (
 );
 
 -- =============================================
--- MEDIDA — Índices para rendimiento
+-- ÍNDICES para rendimiento y seguridad
 -- =============================================
 
-CREATE INDEX idx_usuario_email     ON usuario(email);
-CREATE INDEX idx_usuario_rol       ON usuario(rol);
-CREATE INDEX idx_obra_autor        ON obra(id_autor);
-CREATE INDEX idx_obra_genero       ON obra(genero);
-CREATE INDEX idx_obra_lecturas     ON obra(num_lecturas DESC);
-CREATE INDEX idx_comentario_obra   ON comentario(id_obra);
-CREATE INDEX idx_mensaje_remitente ON mensaje(id_remitente);
-CREATE INDEX idx_mensaje_destinatario ON mensaje(id_destinatario);
-CREATE INDEX idx_like_obra         ON like_obra(id_obra);
-CREATE INDEX idx_seguimiento_autor ON seguimiento(id_autor);
+CREATE INDEX idx_usuario_email
+    ON usuario(email);
+CREATE INDEX idx_usuario_rol
+    ON usuario(rol);
+CREATE INDEX idx_obra_autor
+    ON obra(id_autor);
+CREATE INDEX idx_obra_genero
+    ON obra(genero);
+CREATE INDEX idx_obra_lecturas
+    ON obra(num_lecturas DESC);
+CREATE INDEX idx_comentario_obra
+    ON comentario(id_obra);
+CREATE INDEX idx_mensaje_remitente
+    ON mensaje(id_remitente);
+CREATE INDEX idx_mensaje_destinatario
+    ON mensaje(id_destinatario);
+CREATE INDEX idx_like_obra
+    ON like_obra(id_obra);
+CREATE INDEX idx_seguimiento_autor
+    ON seguimiento(id_autor);
 
 -- =============================================
--- MEDIDA — Permisos del rol de aplicación
--- =============================================
-
--- Permisos de lectura y escritura para la aplicación
-GRANT SELECT, INSERT, UPDATE, DELETE
-    ON usuario, obra, comentario, mensaje, like_obra, seguimiento
-    TO tintahub_app;
-
--- Permisos sobre las secuencias SERIAL
-GRANT USAGE, SELECT
-    ON ALL SEQUENCES IN SCHEMA public
-    TO tintahub_app;
-
--- Permisos de solo lectura
-GRANT SELECT
-    ON usuario, obra, comentario, mensaje, like_obra, seguimiento
-    TO tintahub_readonly;
-
--- =============================================
--- MEDIDA — Vista segura de usuarios (oculta password_hash e intentos_login)
+-- VISTA segura de usuarios oculta password_hash e intentos_login
 -- =============================================
 
 CREATE VIEW vista_usuario_publico AS
@@ -176,26 +149,22 @@ CREATE VIEW vista_usuario_publico AS
     FROM usuario
     WHERE activo = TRUE;
 
-GRANT SELECT ON vista_usuario_publico TO tintahub_app;
-
 -- =============================================
--- MEDIDA — Función para registrar accesos
+-- FUNCIONES de seguridad
 -- =============================================
 
+-- Registrar acceso exitoso
 CREATE OR REPLACE FUNCTION registrar_acceso(p_id_usuario INTEGER)
 RETURNS VOID AS $$
 BEGIN
     UPDATE usuario
-    SET ultimo_acceso = CURRENT_TIMESTAMP,
+    SET ultimo_acceso  = CURRENT_TIMESTAMP,
         intentos_login = 0
     WHERE id_usuario = p_id_usuario;
 END;
 $$ LANGUAGE plpgsql;
 
--- =============================================
--- MEDIDA — Función para bloquear tras intentos fallidos de login
--- =============================================
-
+-- Incrementar intentos fallidos y bloquear tras 5 intentos
 CREATE OR REPLACE FUNCTION incrementar_intentos(p_email VARCHAR)
 RETURNS BOOLEAN AS $$
 DECLARE
