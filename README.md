@@ -146,3 +146,4 @@ Atribución-NoComercial-SinDerivadas 4.0 Internacional (CC BY-NC-ND 4.0)
 - No puedes presentarlo como trabajo propio
 
 © 2026 Luis Rodrigo Guillén Calderón. Todos los derechos reservados.# CI/CD test
+Pipeline automatico sin contraseña
