@@ -15,27 +15,19 @@ jobs:
       - name: Checkout codigo
         uses: actions/checkout@v4
 
-      - name: Configurar SSH
+      - name: Actualizar proyecto
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          cd /home/tintahub/tintahub
+          git pull origin main
 
-      - name: Desplegar en servidor
+      - name: Reiniciar contenedores Docker
         run: |
-          ssh -i ~/.ssh/deploy_key \
-              -o StrictHostKeyChecking=no \
-              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-              "cd ${{ secrets.SERVER_PATH }} && \
-               git pull origin main && \
-               docker compose down && \
-               docker compose up -d && \
-               docker ps"
+          cd /home/tintahub/tintahub
+          docker compose down
+          docker compose up -d
 
       - name: Verificar despliegue
         run: |
-          ssh -i ~/.ssh/deploy_key \
-              -o StrictHostKeyChecking=no \
-              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-              "curl -s http://localhost/test-db"
+          sleep 5
+          docker ps
+          curl -s http://localhost/test-db
