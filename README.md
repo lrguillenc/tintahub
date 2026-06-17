@@ -145,4 +145,4 @@ Atribución-NoComercial-SinDerivadas 4.0 Internacional (CC BY-NC-ND 4.0)
 - No puedes modificarlo y redistribuirlo
 - No puedes presentarlo como trabajo propio
 
-© 2026 Luis Rodrigo Guillén Calderón. Todos los derechos reservados.
+© 2026 Luis Rodrigo Guillén Calderón. Todos los derechos reservados.# CI/CD test
