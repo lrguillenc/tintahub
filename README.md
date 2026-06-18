@@ -128,6 +128,33 @@ docker ps
 - IP del servidor oculta mediante Cloudflare Tunnel
 - HTTPS con certificado SSL de Cloudflare
 
+## CI/CD — Despliegue Continuo
+
+El proyecto implementa un pipeline de integración y despliegue 
+continuo mediante GitHub Actions y un self-hosted runner instalado 
+directamente en el servidor Ubuntu.
+
+git push → GitHub Actions → Runner en servidor → Docker → tintahub.es
+
+### Flujo de despliegue automático
+
+Cada vez que se realiza un push a la rama `main` el pipeline 
+ejecuta automáticamente los siguientes pasos:
+
+1. Descarga los últimos cambios del repositorio
+2. Para los contenedores Docker en ejecución
+3. Levanta los contenedores actualizados
+4. Verifica que el servicio responde correctamente
+
+### Tecnologías del pipeline
+
+| Componente | Uso |
+|---|---|
+| GitHub Actions | Orquestación del pipeline |
+| Self-hosted Runner | Ejecución local en el servidor |
+| Docker Compose | Gestión de contenedores |
+| systemd | Runner como servicio permanente |
+
 ## Autor
 
 **Luis Rodrigo Guillén Calderón**
