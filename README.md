@@ -42,39 +42,17 @@ Los principales objetivos técnicos fueron:
 
 ## Stack tecnológico
 
-| Tecnología | Versión | Uso |
+| Tecnología | Uso |
 |---|---|---|
-| Ubuntu Server LTS | 24.04 | Sistema operativo del servidor |
-| Docker | 29.3.0 | Contenedorización de servicios |
-| Docker Compose | 2.40.0 | Orquestación de contenedores |
-| Nginx | latest | Servidor web y reverse proxy |
-| PostgreSQL | 16 | Base de datos relacional |
-| Node.js | 20 | Backend de la aplicación |
-| Express | 4.18 | Framework web del backend |
-| Cloudflare Tunnel | 2026.3.0 | Acceso seguro sin IP pública |
-| VMware Workstation Pro | 17 | Virtualización del servidor |
-
-## Estructura del proyecto
-tintahub/
-│   docker-compose.yml
-│   .env.example
-│   README.md
-│   LICENSE
-│
-├── backend/
-│     Dockerfile
-│     package.json
-│     server.js
-│
-├── base_datos/
-│     init.sql
-│
-├── frontend/
-│     index.html
-│
-└── nginx/
-└── conf/
-default.conf
+| Ubuntu Server LTS | Sistema operativo del servidor |
+| Docker | Contenedorización de servicios |
+| Docker Compose  | Orquestación de contenedores |
+| Nginx | Servidor web y reverse proxy |
+| PostgreSQL | Base de datos relacional |
+| Node.js | Backend de la aplicación |
+| Express | Framework web del backend |
+| Cloudflare Tunnel | Acceso seguro sin IP pública |
+| VMware Workstation Pro | Virtualización del servidor |
 
 ## Arquitectura
 
@@ -116,6 +94,59 @@ El acceso desde Internet se realiza de forma segura mediante **Cloudflare Tunnel
 | PostgreSQL 16           | Base de datos relacional                |
 | Cloudflare Tunnel       | Acceso seguro sin exponer la IP pública |
 | GitHub Actions          | Automatización del despliegue continuo  |
+
+## Decisiones de diseño
+
+Durante el desarrollo del proyecto se tomaron diferentes decisiones técnicas con el objetivo de construir una infraestructura sencilla de administrar, escalable y segura.
+
+### ¿Por qué Docker?
+
+Docker permitió desacoplar los distintos servicios de la aplicación, simplificando tanto el despliegue como el mantenimiento y garantizando un entorno reproducible independientemente del sistema anfitrión.
+
+### ¿Por qué PostgreSQL?
+
+Se seleccionó PostgreSQL por su robustez, cumplimiento del estándar SQL y soporte para funcionalidades avanzadas como vistas, funciones PL/pgSQL, restricciones de integridad e índices de alto rendimiento.
+
+### ¿Por qué Nginx?
+
+Nginx actúa como Reverse Proxy centralizando el acceso HTTP hacia la aplicación y permitiendo ocultar los servicios internos desplegados en Docker.
+
+### ¿Por qué Cloudflare Tunnel?
+
+Cloudflare Tunnel permite publicar el servicio sin exponer la dirección IP pública del servidor, aumentando la seguridad de la infraestructura y evitando la apertura de puertos innecesarios.
+
+### ¿Por qué GitHub Actions?
+
+GitHub Actions automatiza el despliegue continuo del proyecto, reduciendo errores manuales y facilitando la actualización de la infraestructura tras cada cambio en la rama principal.
+
+## Implementación del proyecto
+
+El desarrollo de TintaHub se abordó siguiendo un proceso incremental, construyendo la infraestructura por capas y validando cada componente antes de integrar el siguiente.
+
+La implementación comenzó con la preparación del servidor Ubuntu Server virtualizado, sobre el que se configuró Docker y Docker Compose para aislar los distintos servicios de la aplicación.
+
+Posteriormente se diseñó e implementó la base de datos relacional en PostgreSQL, definiendo las entidades, relaciones, restricciones de integridad, índices, vistas y funciones necesarias para garantizar la consistencia y seguridad de la información.
+
+Una vez validada la capa de datos, se desarrolló el backend en Node.js y Express, integrando la comunicación con PostgreSQL y la lógica de negocio de la plataforma.
+
+La publicación del servicio se realizó mediante Nginx como Reverse Proxy y Cloudflare Tunnel para evitar la exposición de la dirección IP pública del servidor.
+
+Finalmente se automatizó el despliegue continuo utilizando GitHub Actions junto con un self-hosted runner instalado en el propio servidor, permitiendo desplegar automáticamente los cambios realizados sobre la rama principal del repositorio.
+
+## Flujo de una petición
+
+Cuando un usuario accede a la aplicación, la petición sigue el siguiente recorrido:
+
+1. El navegador realiza una petición HTTPS al dominio de TintaHub.
+2. Cloudflare recibe la petición y la redirige mediante Cloudflare Tunnel.
+3. El servidor Ubuntu recibe la conexión.
+4. Docker Compose dirige el tráfico hacia Nginx.
+5. Nginx actúa como Reverse Proxy y reenvía la petición al backend Node.js.
+6. El backend procesa la lógica de negocio.
+7. Si es necesario, consulta PostgreSQL mediante la red privada de Docker.
+8. PostgreSQL devuelve la información solicitada.
+9. El backend genera la respuesta.
+10. Nginx devuelve la respuesta al usuario.
 
 ## Base de datos
 
@@ -186,46 +217,6 @@ La base de datos incorpora diferentes mecanismos de protección orientados a la 
 * Seguridad en bases de datos
 * Docker
 * SQL
-
-
-## Requisitos previos
-
-- VMware Workstation Pro 17 o superior
-- Ubuntu Server 24.04 LTS
-- Docker 20.0 o superior
-- Docker Compose 2.0 o superior
-- Dominio propio (opcional, recomendado)
-- Cuenta en Cloudflare (gratuita)
-
-## Instalación
-
-### 1 — Clonar el repositorio
-
-```bash
-git clone https://github.com/lrguillenc/tintahub.git
-cd tintahub
-```
-
-### 2 — Crear el archivo de variables de entorno
-
-```bash
-cp .env.example .env
-nano .env
-```
-
-Rellena las variables con tus propios valores.
-
-### 3 — Levantar el stack
-
-```bash
-docker compose up -d
-```
-
-### 4 — Verificar
-
-```bash
-docker ps
-```
 
 ## Seguridad
 
@@ -299,22 +290,121 @@ ejecuta automáticamente los siguientes pasos:
 | Docker Compose | Gestión de contenedores |
 | systemd | Runner como servicio permanente |
 
+## Instalación
+
+### 1 — Clonar el repositorio
+
+```bash
+git clone https://github.com/lrguillenc/tintahub.git
+cd tintahub
+```
+
+### 2 — Crear el archivo de variables de entorno
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+Rellena las variables con tus propios valores.
+
+### 3 — Levantar el stack
+
+```bash
+docker compose up -d
+```
+
+### 4 — Verificar
+
+```bash
+docker ps
+```
+
+## Competencias adquiridas
+
+Durante el desarrollo de TintaHub se aplicaron conocimientos relacionados con:
+
+### Administración de sistemas
+
+- Ubuntu Server
+- Administración Linux
+- Gestión de servicios
+- Virtualización
+
+### Infraestructura
+
+- Docker
+- Docker Compose
+- Nginx
+- Cloudflare Tunnel
+- Redes TCP/IP
+
+### Bases de datos
+
+- PostgreSQL
+- SQL
+- Integridad referencial
+- Índices
+- Vistas
+- Funciones PL/pgSQL
+
+### DevOps
+
+- Git
+- GitHub
+- GitHub Actions
+- CI/CD
+
+### Seguridad
+
+- Hardening
+- UFW
+- Fail2ban
+- SSH
+- HTTPS
+- Variables de entorno
+
+### Desarrollo
+
+- Node.js
+- Express
+- HTML
+
+## Retos técnicos
+
+Durante el desarrollo del proyecto surgieron diferentes retos técnicos que requirieron investigación y resolución:
+
+- Diseño de una arquitectura desacoplada mediante Docker Compose.
+- Configuración de la comunicación entre contenedores.
+- Modelado de una base de datos relacional manteniendo la integridad referencial.
+- Automatización del despliegue mediante GitHub Actions y un self-hosted runner.
+- Publicación segura del servicio utilizando Cloudflare Tunnel sin exponer la IP pública.
+- Aplicación de medidas de hardening sobre Ubuntu Server.
+
+## Roadmap
+
+### Próximas mejoras
+
+- Implementación de autenticación OAuth 2.0.
+- Incorporación de almacenamiento de archivos compatible con S3.
+- Sistema de copias de seguridad automatizadas para PostgreSQL.
+- Monitorización mediante Prometheus y Grafana.
+- Integración de pruebas automatizadas dentro del pipeline CI/CD.
+- Despliegue mediante Docker Swarm o Kubernetes.
+- Implementación de sistema de caché con Redis.
+
 ## Autor
 
 **Luis Rodrigo Guillén Calderón**
-Trabajo de Fin de Grado — ASIR
+Proyecto Intermodular — ASIR
 ThePower FP Oficial — 2026
 
 ## Licencia
 
-Este proyecto está protegido bajo la licencia Creative Commons
-Atribución-NoComercial-SinDerivadas 4.0 Internacional (CC BY-NC-ND 4.0)
+Este proyecto se distribuye bajo licencia
+Creative Commons BY-NC-ND 4.0.
 
-- Puedes ver y estudiar el código
-- Puedes compartirlo citando al autor
-- No puedes usarlo con fines comerciales
-- No puedes modificarlo y redistribuirlo
-- No puedes presentarlo como trabajo propio
+Consulta el archivo LICENSE para obtener más información.
 
-© 2026 Luis Rodrigo Guillén Calderón. Todos los derechos reservados.# CI/CD test
-Pipeline automatico sin contraseña
+
+© 2026 Luis Rodrigo Guillén Calderón. Todos los derechos reservados.
