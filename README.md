@@ -261,6 +261,17 @@ Desde el inicio del proyecto se aplicaron medidas de seguridad siguiendo el prin
 - Cifrado HTTPS gestionado por Cloudflare.
 - Cabeceras HTTP de seguridad configuradas en Nginx.
 
+### Principios de seguridad aplicados
+
+Durante el desarrollo del proyecto se aplicaron diferentes buenas prácticas orientadas a reducir la superficie de exposición y proteger la infraestructura:
+
+- Principio de mínimo privilegio.
+- Segmentación de servicios mediante Docker.
+- Separación entre frontend, backend y base de datos.
+- Gestión segura de credenciales.
+- Aislamiento de la base de datos.
+- Defensa en profundidad.
+
 ## CI/CD — Despliegue Continuo
 
 El proyecto implementa un pipeline de integración y despliegue 
