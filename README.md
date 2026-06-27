@@ -117,6 +117,49 @@ El acceso desde Internet se realiza de forma segura mediante **Cloudflare Tunnel
 | Cloudflare Tunnel       | Acceso seguro sin exponer la IP pública |
 | GitHub Actions          | Automatización del despliegue continuo  |
 
+## Base de datos
+
+La plataforma utiliza **PostgreSQL 16** como sistema de gestión de bases de datos relacional. El modelo de datos fue diseñado para garantizar la integridad de la información, facilitar el mantenimiento de la aplicación y optimizar las consultas realizadas por el backend.
+
+La base de datos se ejecuta como un contenedor independiente dentro de la red privada de Docker Compose, permaneciendo inaccesible desde Internet y permitiendo conexiones únicamente desde el servicio backend.
+
+### Diseño del modelo de datos
+
+El esquema relacional está compuesto por **6 tablas principales**, que gestionan las entidades fundamentales de la aplicación:
+
+| Tabla       | Descripción                                                             |
+| ----------- | ----------------------------------------------------------------------- |
+| Usuarios    | Gestión de cuentas, autenticación y roles de escritor o lector.         |
+| Obras       | Información de las obras literarias publicadas por los autores.         |
+| Comentarios | Comentarios realizados por los lectores sobre las obras.                |
+| Likes       | Registro de las interacciones positivas entre usuarios y obras.         |
+| Seguidores  | Relación entre lectores y autores para el seguimiento de publicaciones. |
+| Mensajes    | Sistema de mensajería privada entre usuarios registrados.               |
+
+### Características implementadas
+
+* Modelado relacional normalizado.
+* Claves primarias para la identificación de registros.
+* Claves foráneas para garantizar la integridad referencial.
+* Índices para optimizar el rendimiento de las consultas más frecuentes.
+* Vistas SQL para simplificar consultas utilizadas por la aplicación.
+* Restricciones de integridad para garantizar la consistencia de los datos.
+
+### Integración con la infraestructura
+
+La comunicación con PostgreSQL se realiza exclusivamente desde el backend desarrollado en Node.js a través de la red interna de Docker. Las credenciales de acceso se gestionan mediante variables de entorno, evitando su almacenamiento en el código fuente y facilitando una configuración segura del entorno.
+
+### Competencias técnicas aplicadas
+
+* Diseño de bases de datos relacionales.
+* Modelado de datos.
+* PostgreSQL 16.
+* Integridad referencial.
+* Optimización mediante índices.
+* Diseño de vistas SQL.
+* Gestión segura de credenciales.
+* Administración de bases de datos en contenedores Docker.
+
 
 ## Requisitos previos
 
