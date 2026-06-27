@@ -16,6 +16,21 @@ El objetivo del proyecto ha sido diseñar, desplegar y administrar una infraestr
 
 La solución se ejecuta sobre un servidor Ubuntu Server virtualizado e integra una arquitectura basada en contenedores Docker compuesta por un servidor web Nginx, un backend desarrollado con Node.js y una base de datos PostgreSQL. El despliegue continuo se automatiza mediante GitHub Actions y un self-hosted runner instalado en el propio servidor.
 
+## Objetivos técnicos
+
+Además del desarrollo funcional de la aplicación, el proyecto se diseñó con el objetivo de consolidar conocimientos en administración de sistemas e infraestructura mediante la implementación de un entorno de producción completo.
+
+Los principales objetivos técnicos fueron:
+
+* Diseñar una infraestructura basada en contenedores Docker para aislar y administrar los distintos servicios de la aplicación.
+* Administrar un servidor Ubuntu Server 24.04 LTS virtualizado como plataforma principal del proyecto.
+* Implementar una base de datos relacional PostgreSQL aplicando modelado de datos, integridad referencial, índices y vistas.
+* Configurar Nginx como servidor web y *reverse proxy* para la publicación segura de la aplicación.
+* Automatizar el despliegue continuo mediante GitHub Actions y un *self-hosted runner* instalado en el servidor.
+* Aplicar medidas de hardening y seguridad mediante UFW, Fail2ban, autenticación SSH por claves, HTTPS y Cloudflare Tunnel.
+* Gestionar la infraestructura utilizando buenas prácticas de administración, documentación y control de versiones con Git y GitHub.
+
+
 ## Características principales
 
 - Registro y autenticación de usuarios con roles diferenciados (escritor/lector)
