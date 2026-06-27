@@ -227,16 +227,39 @@ docker compose up -d
 docker ps
 ```
 
-## Seguridad implementada
+## Seguridad
 
-- Autenticación SSH mediante par de claves RSA de 4096 bits
-- Firewall UFW con política de denegación por defecto
-- Fail2ban para prevención de ataques de fuerza bruta
-- Credenciales en variables de entorno
-- PostgreSQL y backend no expuestos externamente
-- Cabeceras HTTP de seguridad en Nginx
-- IP del servidor oculta mediante Cloudflare Tunnel
-- HTTPS con certificado SSL de Cloudflare
+Desde el inicio del proyecto se aplicaron medidas de seguridad siguiendo el principio de **defensa en profundidad**, protegiendo tanto la infraestructura como los servicios desplegados.
+
+### Seguridad del servidor
+
+- Ubuntu Server 24.04 LTS actualizado.
+- Acceso remoto mediante autenticación SSH con claves RSA de 4096 bits.
+- Deshabilitación del acceso mediante contraseña para SSH.
+- Firewall UFW configurado con política de denegación por defecto.
+- Protección frente a ataques de fuerza bruta mediante Fail2ban.
+
+### Seguridad de la infraestructura
+
+- Arquitectura basada en contenedores Docker con aislamiento entre servicios.
+- PostgreSQL no expuesto a Internet.
+- Backend accesible únicamente desde la red privada de Docker.
+- Nginx como único punto de entrada HTTP.
+
+### Seguridad de la aplicación
+
+- Contraseñas almacenadas mediante hash.
+- Variables de entorno para proteger las credenciales.
+- Validación de datos mediante restricciones SQL (`CHECK`).
+- Bloqueo automático de usuarios tras múltiples intentos fallidos de autenticación.
+- Vista SQL que oculta información sensible de los usuarios.
+
+### Seguridad de las comunicaciones
+
+- Publicación del servicio mediante Cloudflare Tunnel.
+- Dirección IP pública del servidor no expuesta.
+- Cifrado HTTPS gestionado por Cloudflare.
+- Cabeceras HTTP de seguridad configuradas en Nginx.
 
 ## CI/CD — Despliegue Continuo
 
