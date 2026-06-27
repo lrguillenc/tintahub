@@ -78,17 +78,45 @@ default.conf
 
 ## Arquitectura
 
-Internet → Cloudflare (SSL/TLS) → Cloudflare Tunnel
-↓
-Ubuntu Server 24.04 LTS
-(VMware Workstation Pro 17)
-↓
-Docker Network
-┌───────────────────────┐
-│  Nginx (puerto 80)    │
-│  Backend Node.js      │
-│  PostgreSQL 16        │
-└───────────────────────┘
+TintaHub se despliega sobre un servidor **Ubuntu Server 24.04 LTS** virtualizado mediante **VMware Workstation Pro**. La aplicación sigue una arquitectura multicapa basada en contenedores Docker, donde cada servicio se ejecuta de forma independiente y se comunica a través de una red privada gestionada por Docker Compose.
+
+El acceso desde Internet se realiza de forma segura mediante **Cloudflare Tunnel**, evitando la exposición directa de la dirección IP pública del servidor. **Nginx** actúa como *reverse proxy*, gestionando las peticiones HTTP y redirigiéndolas al backend de la aplicación, mientras que **PostgreSQL** permanece aislado y accesible únicamente desde la red interna de Docker.
+
+### Flujo de la arquitectura
+
+```text
+                 Internet
+                     │
+             Cloudflare (HTTPS)
+                     │
+           Cloudflare Tunnel
+                     │
+      Ubuntu Server 24.04 LTS
+     (VMware Workstation Pro)
+                     │
+             Docker Compose
+                     │
+      ┌────────┬──────────┬────────────┐
+      │        │          │            │
+   Nginx   Backend     PostgreSQL   Docker Network
+ (Reverse   Node.js      16
+  Proxy)
+```
+
+### Componentes de la infraestructura
+
+| Componente              | Función                                 |
+| ----------------------- | --------------------------------------- |
+| Ubuntu Server 24.04 LTS | Sistema operativo del servidor          |
+| VMware Workstation Pro  | Virtualización del entorno              |
+| Docker                  | Contenedorización de los servicios      |
+| Docker Compose          | Orquestación de la infraestructura      |
+| Nginx                   | Reverse Proxy y servidor web            |
+| Node.js + Express       | Backend de la aplicación                |
+| PostgreSQL 16           | Base de datos relacional                |
+| Cloudflare Tunnel       | Acceso seguro sin exponer la IP pública |
+| GitHub Actions          | Automatización del despliegue continuo  |
+
 
 ## Requisitos previos
 
