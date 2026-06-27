@@ -119,46 +119,73 @@ El acceso desde Internet se realiza de forma segura mediante **Cloudflare Tunnel
 
 ## Base de datos
 
-La plataforma utiliza **PostgreSQL 16** como sistema de gestión de bases de datos relacional. El modelo de datos fue diseñado para garantizar la integridad de la información, facilitar el mantenimiento de la aplicación y optimizar las consultas realizadas por el backend.
+TintaHub utiliza **PostgreSQL 16** como sistema de gestión de bases de datos relacional. El modelo de datos fue diseñado siguiendo principios de normalización e integridad referencial para garantizar la consistencia de la información y facilitar el mantenimiento de la aplicación.
 
 La base de datos se ejecuta como un contenedor independiente dentro de la red privada de Docker Compose, permaneciendo inaccesible desde Internet y permitiendo conexiones únicamente desde el servicio backend.
 
-### Diseño del modelo de datos
+### Modelo relacional
 
-El esquema relacional está compuesto por **6 tablas principales**, que gestionan las entidades fundamentales de la aplicación:
+La base de datos está compuesta por **6 tablas principales**, una **vista** y **dos funciones PL/pgSQL**.
 
-| Tabla       | Descripción                                                             |
-| ----------- | ----------------------------------------------------------------------- |
-| Usuarios    | Gestión de cuentas, autenticación y roles de escritor o lector.         |
-| Obras       | Información de las obras literarias publicadas por los autores.         |
-| Comentarios | Comentarios realizados por los lectores sobre las obras.                |
-| Likes       | Registro de las interacciones positivas entre usuarios y obras.         |
-| Seguidores  | Relación entre lectores y autores para el seguimiento de publicaciones. |
-| Mensajes    | Sistema de mensajería privada entre usuarios registrados.               |
+| Objeto                     | Función                                                                                                     |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **usuario**                | Gestión de usuarios, autenticación, roles y estado de la cuenta.                                            |
+| **obra**                   | Información de las obras publicadas por los autores.                                                        |
+| **comentario**             | Comentarios realizados por los lectores sobre cada obra.                                                    |
+| **mensaje**                | Sistema de mensajería privada entre usuarios.                                                               |
+| **like_obra**              | Relación entre usuarios y obras para registrar los "Me gusta".                                              |
+| **seguimiento**            | Relación entre lectores y autores seguidos.                                                                 |
+| **vista_usuario_publico**  | Vista segura que oculta información sensible de los usuarios.                                               |
+| **registrar_acceso()**     | Actualiza el último acceso del usuario y reinicia el contador de intentos fallidos.                         |
+| **incrementar_intentos()** | Gestiona los intentos de inicio de sesión y bloquea automáticamente la cuenta tras cinco intentos fallidos. |
 
-### Características implementadas
+### Diseño e integridad de los datos
+
+Durante el diseño de la base de datos se implementaron diferentes mecanismos para garantizar la calidad, seguridad y consistencia de la información:
 
 * Modelado relacional normalizado.
-* Claves primarias para la identificación de registros.
-* Claves foráneas para garantizar la integridad referencial.
-* Índices para optimizar el rendimiento de las consultas más frecuentes.
-* Vistas SQL para simplificar consultas utilizadas por la aplicación.
-* Restricciones de integridad para garantizar la consistencia de los datos.
+* Claves primarias (`PRIMARY KEY`) en todas las entidades.
+* Claves foráneas (`FOREIGN KEY`) para mantener la integridad referencial.
+* Restricciones (`CHECK`) para validar datos y reglas de negocio.
+* Restricciones `UNIQUE` para evitar duplicidades.
+* Valores por defecto (`DEFAULT`) para simplificar la inserción de registros.
+* Eliminación en cascada (`ON DELETE CASCADE`) para mantener la consistencia entre tablas relacionadas.
 
-### Integración con la infraestructura
+### Optimización del rendimiento
 
-La comunicación con PostgreSQL se realiza exclusivamente desde el backend desarrollado en Node.js a través de la red interna de Docker. Las credenciales de acceso se gestionan mediante variables de entorno, evitando su almacenamiento en el código fuente y facilitando una configuración segura del entorno.
+Con el objetivo de mejorar el rendimiento de las consultas más frecuentes se implementaron índices específicos sobre los campos de búsqueda y relaciones entre tablas, incluyendo:
+
+* Búsqueda de usuarios por correo electrónico.
+* Filtrado por rol.
+* Consulta de obras por autor y género.
+* Ordenación por número de lecturas.
+* Recuperación de comentarios por obra.
+* Mensajería entre usuarios.
+* Consultas de seguidores y "Me gusta".
+
+### Seguridad aplicada
+
+La base de datos incorpora diferentes mecanismos de protección orientados a la seguridad de la información:
+
+* Almacenamiento de contraseñas mediante hash.
+* Vista pública que oculta información sensible como el hash de la contraseña y el número de intentos de inicio de sesión.
+* Funciones PL/pgSQL para controlar el acceso de los usuarios.
+* Bloqueo automático de cuentas tras múltiples intentos fallidos de autenticación.
+* Gestión de credenciales mediante variables de entorno.
+* Acceso restringido exclusivamente desde el backend a través de la red privada de Docker.
 
 ### Competencias técnicas aplicadas
 
-* Diseño de bases de datos relacionales.
-* Modelado de datos.
-* PostgreSQL 16.
-* Integridad referencial.
-* Optimización mediante índices.
-* Diseño de vistas SQL.
-* Gestión segura de credenciales.
-* Administración de bases de datos en contenedores Docker.
+* PostgreSQL 16
+* Diseño de bases de datos relacionales
+* Modelado de datos
+* Integridad referencial
+* Optimización mediante índices
+* Vistas SQL
+* Funciones PL/pgSQL
+* Seguridad en bases de datos
+* Docker
+* SQL
 
 
 ## Requisitos previos
