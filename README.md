@@ -10,14 +10,11 @@
 
 ## Descripción
 
-TintaHub es una plataforma web de difusión literaria de carácter open source 
-y sin ánimo de lucro, orientada a escritores emergentes que buscan publicar 
-sus obras de forma libre e independiente, y a lectores interesados en 
-descubrir nuevos talentos literarios fuera de los circuitos comerciales 
-tradicionales.
+TintaHub es una plataforma web de difusión literaria de código abierto desarrollada como Proyecto Intermodular del ciclo de Grado Superior en Administración de Sistemas Informáticos en Red (ASIR).
 
-Este proyecto forma parte del Trabajo de Fin de Grado del ciclo formativo 
-de Grado Superior en Administración de Sistemas Informáticos en Red (ASIR).
+El objetivo del proyecto ha sido diseñar, desplegar y administrar una infraestructura completa para una aplicación web moderna, aplicando buenas prácticas de administración de sistemas, virtualización, seguridad, bases de datos y automatización de despliegues.
+
+La solución se ejecuta sobre un servidor Ubuntu Server virtualizado e integra una arquitectura basada en contenedores Docker compuesta por un servidor web Nginx, un backend desarrollado con Node.js y una base de datos PostgreSQL. El despliegue continuo se automatiza mediante GitHub Actions y un self-hosted runner instalado en el propio servidor.
 
 ## Características principales
 
