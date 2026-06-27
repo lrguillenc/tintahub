@@ -1,4 +1,4 @@
-# TintaHub — Plataforma Web de Difusión Literaria
+# TintaHub — Infraestructura Linux para una Plataforma Web de Difusión Literaria
 
 ![License](https://img.shields.io/badge/license-CC%20BY--NC--ND%204.0-lightgrey)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
@@ -10,15 +10,15 @@
 
 ## Descripción
 
-TintaHub es una plataforma web de difusión literaria de código abierto desarrollada como Proyecto Intermodular del ciclo de Grado Superior en Administración de Sistemas Informáticos en Red (ASIR).
+TintaHub es un proyecto de Administración de Sistemas desarrollado como Proyecto Intermodular del ciclo de Grado Superior en Administración de Sistemas Informáticos en Red (ASIR).
 
-El objetivo del proyecto ha sido diseñar, desplegar y administrar una infraestructura completa para una aplicación web moderna, aplicando buenas prácticas de administración de sistemas, virtualización, seguridad, bases de datos y automatización de despliegues.
+El proyecto consiste en el diseño, despliegue, administración y automatización de una infraestructura Linux capaz de alojar una plataforma web de difusión literaria, aplicando buenas prácticas de virtualización, contenerización, seguridad, administración de bases de datos y despliegue continuo.
 
-La solución se ejecuta sobre un servidor Ubuntu Server virtualizado e integra una arquitectura basada en contenedores Docker compuesta por un servidor web Nginx, un backend desarrollado con Node.js y una base de datos PostgreSQL. El despliegue continuo se automatiza mediante GitHub Actions y un self-hosted runner instalado en el propio servidor.
+La infraestructura se ejecuta sobre Ubuntu Server virtualizado e integra una arquitectura basada en Docker Compose compuesta por Nginx como reverse proxy, un backend desarrollado con Node.js y una base de datos PostgreSQL. El despliegue continuo se automatiza mediante GitHub Actions y un self-hosted runner instalado en el propio servidor.
 
 ## Objetivos técnicos
 
-Además del desarrollo funcional de la aplicación, el proyecto se diseñó con el objetivo de consolidar conocimientos en administración de sistemas e infraestructura mediante la implementación de un entorno de producción completo.
+El proyecto fue concebido como un entorno práctico para aplicar conocimientos propios de la administración de sistemas, infraestructura y automatización, simulando el despliegue de una aplicación web en un entorno de producción.
 
 Los principales objetivos técnicos fueron:
 
@@ -40,6 +40,17 @@ Los principales objetivos técnicos fueron:
 - Algoritmo de visibilidad basado en interacción de la comunidad
 - Sin comisiones sobre ventas ni modelos de suscripción
 
+### Características de la infraestructura
+
+- Infraestructura basada en contenedores Docker.
+- Despliegue sobre Ubuntu Server virtualizado.
+- Reverse Proxy mediante Nginx.
+- Base de datos PostgreSQL aislada de Internet.
+- Publicación segura mediante Cloudflare Tunnel.
+- Despliegue continuo automatizado con GitHub Actions.
+- Gestión centralizada mediante Docker Compose.
+- Hardening básico del servidor mediante UFW y Fail2ban.
+
 ## Stack tecnológico
 
 | Tecnología | Uso |
@@ -56,7 +67,7 @@ Los principales objetivos técnicos fueron:
 
 ## Arquitectura
 
-TintaHub se despliega sobre un servidor **Ubuntu Server 24.04 LTS** virtualizado mediante **VMware Workstation Pro**. La aplicación sigue una arquitectura multicapa basada en contenedores Docker, donde cada servicio se ejecuta de forma independiente y se comunica a través de una red privada gestionada por Docker Compose.
+La infraestructura TintaHub se despliega sobre un servidor **Ubuntu Server 24.04 LTS** virtualizado mediante **VMware Workstation Pro**. La aplicación sigue una arquitectura multicapa basada en contenedores Docker, donde cada servicio se ejecuta de forma independiente y se comunica a través de una red privada gestionada por Docker Compose.
 
 El acceso desde Internet se realiza de forma segura mediante **Cloudflare Tunnel**, evitando la exposición directa de la dirección IP pública del servidor. **Nginx** actúa como *reverse proxy*, gestionando las peticiones HTTP y redirigiéndolas al backend de la aplicación, mientras que **PostgreSQL** permanece aislado y accesible únicamente desde la red interna de Docker.
 
@@ -119,7 +130,7 @@ Cloudflare Tunnel permite publicar el servicio sin exponer la dirección IP púb
 
 GitHub Actions automatiza el despliegue continuo del proyecto, reduciendo errores manuales y facilitando la actualización de la infraestructura tras cada cambio en la rama principal.
 
-## Implementación del proyecto
+## Implementación de la infraestructura
 
 El desarrollo de TintaHub se abordó siguiendo un proceso incremental, construyendo la infraestructura por capas y validando cada componente antes de integrar el siguiente.
 
@@ -322,7 +333,7 @@ docker ps
 
 ## Competencias adquiridas
 
-Durante el desarrollo de TintaHub se aplicaron conocimientos relacionados con:
+Durante el desarrollo de la infraestructura TintaHub se aplicaron conocimientos relacionados con:
 
 ### Administración de sistemas
 
@@ -330,6 +341,18 @@ Durante el desarrollo de TintaHub se aplicaron conocimientos relacionados con:
 - Administración Linux
 - Gestión de servicios
 - Virtualización
+
+### Administración de Infraestructura
+
+- Linux
+- Ubuntu Server
+- Docker
+- Docker Compose
+- Virtualización
+- Reverse Proxy
+- Cloudflare Tunnel
+- Nginx
+- Redes TCP/IP
 
 ### Infraestructura
 
@@ -364,7 +387,7 @@ Durante el desarrollo de TintaHub se aplicaron conocimientos relacionados con:
 - HTTPS
 - Variables de entorno
 
-### Desarrollo
+### Servicios de la aplicación
 
 - Node.js
 - Express
@@ -385,13 +408,22 @@ Durante el desarrollo del proyecto surgieron diferentes retos técnicos que requ
 
 ### Próximas mejoras
 
-- Implementación de autenticación OAuth 2.0.
-- Incorporación de almacenamiento de archivos compatible con S3.
-- Sistema de copias de seguridad automatizadas para PostgreSQL.
 - Monitorización mediante Prometheus y Grafana.
-- Integración de pruebas automatizadas dentro del pipeline CI/CD.
-- Despliegue mediante Docker Swarm o Kubernetes.
-- Implementación de sistema de caché con Redis.
+- Centralización de logs con Loki.
+- Backups automáticos de PostgreSQL.
+- Alta disponibilidad mediante Docker Swarm.
+- Despliegue sobre Kubernetes.
+- Integración de Ansible para automatización.
+- Gestión de secretos mediante Docker Secrets.
+- Integración de alertas mediante Alertmanager.
+
+## Perfil profesional del proyecto
+
+Este proyecto refleja la aplicación práctica de los conocimientos adquiridos durante el ciclo ASIR en un entorno similar al de producción.
+
+La infraestructura ha sido diseñada, desplegada y administrada íntegramente por el autor utilizando tecnologías ampliamente empleadas en entornos profesionales como Ubuntu Server, Docker, PostgreSQL, Nginx, GitHub Actions y Cloudflare Tunnel.
+
+El objetivo principal no ha sido únicamente desarrollar una aplicación funcional, sino demostrar competencias relacionadas con la administración de sistemas Linux, virtualización, automatización, seguridad, bases de datos y despliegue continuo.
 
 ## Autor
 
