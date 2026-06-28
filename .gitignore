@@ -16,4 +16,4 @@ desktop.ini
 
 # Archivos temporales
 *.tmp
-*.temp
+*.temp*.code-workspace
