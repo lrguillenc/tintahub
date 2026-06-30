@@ -1,5 +1,5 @@
 -- =============================================
--- TintaHub - Plataforma Web de Difusión Literaria
+-- TintaHub - Infraestructura para una Plataforma Web de Difusión Literaria
 -- Base de datos PostgreSQL 16
 -- Autor: Luis Rodrigo Guillén Calderón
 -- TFG ASIR - ThePower FP Oficial 2026
@@ -183,5 +183,124 @@ BEGIN
     END IF;
 
     RETURN TRUE;
+END;
+$$ LANGUAGE plpgsql;
+
+-- =============================================
+-- HARDENING DE BASE DE DATOS
+-- Medidas de seguridad adicionales
+-- =============================================
+
+-- Medida: Timeouts de seguridad
+-- Cierra transacciones inactivas tras 5 minutos
+-- Cancela consultas que tarden mas de 30 segundos
+ALTER ROLE tintahub_user SET idle_in_transaction_session_timeout = '5min';
+ALTER ROLE tintahub_user SET statement_timeout = '30s';
+
+-- Medida: Logging de seguridad
+-- Registra consultas lentas, conexiones y bloqueos
+ALTER SYSTEM SET log_min_duration_statement = '1000';
+ALTER SYSTEM SET log_connections = 'on';
+ALTER SYSTEM SET log_disconnections = 'on';
+ALTER SYSTEM SET log_lock_waits = 'on';
+
+-- Medida: Revocar permisos publicos por defecto
+-- Aplica el principio de minimo privilegio
+REVOKE ALL ON DATABASE tintahub_db FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+GRANT USAGE ON SCHEMA public TO tintahub_user;
+
+-- Recargar configuracion para aplicar los cambios
+SELECT pg_reload_conf();
+
+-- =============================================
+-- RGPD - Reglamento General de Proteccion de Datos
+-- =============================================
+
+-- Campos de consentimiento y trazabilidad legal
+-- en la tabla usuario
+ALTER TABLE usuario 
+    ADD COLUMN IF NOT EXISTS consentimiento_rgpd BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE usuario 
+    ADD COLUMN IF NOT EXISTS fecha_consentimiento TIMESTAMP;
+
+ALTER TABLE usuario 
+    ADD COLUMN IF NOT EXISTS version_terminos VARCHAR(10);
+
+ALTER TABLE usuario 
+    ADD COLUMN IF NOT EXISTS fecha_solicitud_baja TIMESTAMP;
+
+ALTER TABLE usuario 
+    ADD COLUMN IF NOT EXISTS anonimizado BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- Tabla de registro de consentimientos
+-- Guarda un historial inmutable de cada vez que
+-- un usuario acepta o retira su consentimiento
+-- Obligatorio para poder DEMOSTRAR cumplimiento ante una auditoria
+CREATE TABLE IF NOT EXISTS registro_consentimiento (
+    id_registro    SERIAL PRIMARY KEY,
+    id_usuario     INTEGER      NOT NULL
+                   REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    accion         VARCHAR(20)  NOT NULL
+                   CHECK (accion IN ('otorgado', 'retirado')),
+    version_terminos VARCHAR(10) NOT NULL,
+    ip_origen      VARCHAR(45),
+    fecha          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_registro_consentimiento_usuario
+    ON registro_consentimiento(id_usuario);
+
+-- Funcion para anonimizar un usuario
+-- en lugar de borrarlo fisicamente
+-- Esto permite cumplir el "derecho al olvido" 
+-- sin romper la integridad referencial de obras,
+-- comentarios y mensajes ya existentes
+CREATE OR REPLACE FUNCTION anonimizar_usuario(p_id_usuario INTEGER)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE usuario
+    SET nombre         = 'Usuario eliminado',
+        email          = 'eliminado_' || p_id_usuario || '@tintahub.es',
+        password_hash  = 'ANONIMIZADO',
+        bio            = NULL,
+        activo         = FALSE,
+        anonimizado    = TRUE,
+        fecha_solicitud_baja = CURRENT_TIMESTAMP
+    WHERE id_usuario = p_id_usuario;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Funcion para exportar todos los datos de un usuario
+-- Cumple el derecho de portabilidad del RGPD (Art. 20)
+CREATE OR REPLACE FUNCTION exportar_datos_usuario(p_id_usuario INTEGER)
+RETURNS JSONB AS $$
+DECLARE
+    resultado JSONB;
+BEGIN
+    SELECT jsonb_build_object(
+        'datos_personales', (
+            SELECT row_to_json(u) FROM (
+                SELECT id_usuario, nombre, email, rol, 
+                       fecha_registro, bio, ultimo_acceso
+                FROM usuario WHERE id_usuario = p_id_usuario
+            ) u
+        ),
+        'obras', (
+            SELECT COALESCE(jsonb_agg(row_to_json(o)), '[]'::JSONB)
+            FROM obra o WHERE id_autor = p_id_usuario
+        ),
+        'comentarios', (
+            SELECT COALESCE(jsonb_agg(row_to_json(c)), '[]'::JSONB)
+            FROM comentario c WHERE id_usuario = p_id_usuario
+        ),
+        'mensajes_enviados', (
+            SELECT COALESCE(jsonb_agg(row_to_json(m)), '[]'::JSONB)
+            FROM mensaje m WHERE id_remitente = p_id_usuario
+        )
+    ) INTO resultado;
+
+    RETURN resultado;
 END;
 $$ LANGUAGE plpgsql;
