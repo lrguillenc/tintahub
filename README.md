@@ -53,17 +53,17 @@ Los principales objetivos técnicos fueron:
 
 ## Stack tecnológico
 
-| Tecnología | Uso |
-|---|---|---|
-| Ubuntu Server LTS | Sistema operativo del servidor |
-| Docker | Contenedorización de servicios |
-| Docker Compose  | Orquestación de contenedores |
-| Nginx | Servidor web y reverse proxy |
-| PostgreSQL | Base de datos relacional |
-| Node.js | Backend de la aplicación |
-| Express | Framework web del backend |
-| Cloudflare Tunnel | Acceso seguro sin IP pública |
-| VMware Workstation Pro | Virtualización del servidor |
+| Tecnología              | Función                                 |
+| ----------------------- | --------------------------------------- |
+| Ubuntu Server LTS       | Sistema operativo del servidor          |
+| Docker                  | Contenedorización de servicios          |
+| Docker Compose          | Orquestación de la infraestructura      |
+| Nginx                   | Reverse Proxy y servidor web            |
+| Node.js + Express       | Backend de la aplicación                |
+| PostgreSQL 16           | Base de datos relacional                |
+| Express                 | Frameworkweb del backend                |
+| Cloudflare Tunnel       | Acceso seguro sin exponer la IP pública |
+| VMware Workstation Pro  | Virtualización del servidor             |
 
 ## Arquitectura
 
@@ -139,6 +139,8 @@ La implementación comenzó con la preparación del servidor Ubuntu Server virtu
 Posteriormente se diseñó e implementó la base de datos relacional en PostgreSQL, definiendo las entidades, relaciones, restricciones de integridad, índices, vistas y funciones necesarias para garantizar la consistencia y seguridad de la información.
 
 Una vez validada la capa de datos, se desarrolló el backend en Node.js y Express, integrando la comunicación con PostgreSQL y la lógica de negocio de la plataforma.
+
+La estructura del backend se organizó en módulos independientes siguiendo el patrón MVC: `config/` para la conexión a la base de datos, `controllers/` para la lógica de negocio, `routes/` para la definición de endpoints, `middlewares/` para autenticación y validación, y `utils/` para funciones reutilizables de JWT y sanitización contra XSS.
 
 La publicación del servicio se realizó mediante Nginx como Reverse Proxy y Cloudflare Tunnel para evitar la exposición de la dirección IP pública del servidor.
 
@@ -255,6 +257,7 @@ Desde el inicio del proyecto se aplicaron medidas de seguridad siguiendo el prin
 - Validación de datos mediante restricciones SQL (`CHECK`).
 - Bloqueo automático de usuarios tras múltiples intentos fallidos de autenticación.
 - Vista SQL que oculta información sensible de los usuarios.
+- Hardening de PostgreSQL: timeouts de transacciones, logging de consultas sospechosas y revocación de permisos públicos por defecto.
 
 ### Seguridad de las comunicaciones
 
@@ -273,6 +276,7 @@ Durante el desarrollo del proyecto se aplicaron diferentes buenas prácticas ori
 - Gestión segura de credenciales.
 - Aislamiento de la base de datos.
 - Defensa en profundidad.
+- Cumplimiento RGPD: campos de consentimiento, tabla de auditoría de consentimientos, función de anonimización (derecho al olvido) y función de exportación de datos (derecho de portabilidad).
 
 ## CI/CD — Despliegue Continuo
 
